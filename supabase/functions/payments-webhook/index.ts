@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 // Types
 type WebhookEvent = {
@@ -36,6 +37,64 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Verify Polar webhook signature
+async function verifyPolarSignature(
+  request: Request,
+  body: string
+): Promise<boolean> {
+  try {
+    // Get the webhook signature from the headers
+    const signature = request.headers.get('polar-signature');
+    if (!signature) {
+      console.error('No polar-signature header found');
+      return false;
+    }
+
+    // Get the webhook secret from environment variables
+    const webhookSecret = Deno.env.get('POLAR_WEBHOOK_SECRET');
+    if (!webhookSecret) {
+      console.error('POLAR_WEBHOOK_SECRET environment variable not set');
+      return false;
+    }
+
+    // Parse the signature header
+    // Polar signatures are in the format: v1,<signature>
+    const [version, receivedSignature] = signature.split(',');
+    if (version !== 'v1' || !receivedSignature) {
+      console.error('Invalid signature format');
+      return false;
+    }
+
+    // Create a message to sign
+    // For Polar, we need to create an HMAC SHA-256 of the raw request body
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(webhookSecret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+
+    // Sign the message
+    const signatureBytes = await crypto.subtle.sign(
+      'HMAC',
+      key,
+      encoder.encode(body)
+    );
+
+    // Convert the signature to base64
+    const calculatedSignature = base64Encode(new Uint8Array(signatureBytes));
+
+    // Compare signatures using a constant-time comparison
+    // This helps prevent timing attacks
+    return receivedSignature === calculatedSignature;
+  } catch (error) {
+    console.error('Error verifying webhook signature:', error);
+    return false;
+  }
+}
 
 // Utility functions
 async function storeWebhookEvent(
@@ -379,7 +438,26 @@ serve(async (req) => {
   let eventId: string | null = null;
 
   try {
-    const body = await req.json();
+    // Clone the request to get the body as text for signature verification
+    const clonedReq = req.clone();
+    const rawBody = await clonedReq.text();
+    
+    // Verify the webhook signature
+    const isValidSignature = await verifyPolarSignature(req, rawBody);
+    
+    if (!isValidSignature) {
+      console.error('Invalid webhook signature');
+      return new Response(
+        JSON.stringify({ error: 'Invalid webhook signature' }),
+        { 
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
+    // Parse the body as JSON
+    const body = JSON.parse(rawBody);
     console.log('Processing webhook event:', body.type);
 
     // Create Supabase client
