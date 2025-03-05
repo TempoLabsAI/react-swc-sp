@@ -20,7 +20,10 @@ import {
   Star,
   ChevronRight,
   Github,
-  Loader2
+  Loader2,
+  Twitter,
+  Instagram,
+  X
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../supabase/auth";
@@ -94,7 +97,7 @@ export default function LandingPage() {
   const fetchPlans = async () => {
     try {
       // Use the Supabase client to call the Edge Function
-      const { data, error } = await supabase.functions.invoke('supabase-functions-get-plans');
+      const { data, error } = await supabase.functions.invoke('get-plans');
 
       if (error) {
         throw error;
@@ -129,7 +132,7 @@ export default function LandingPage() {
     setError("");
 
     try {
-      const { data, error } = await supabase.functions.invoke('supabase-functions-create-checkout', {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
           productPriceId: priceId,
           successUrl: `${window.location.origin}/dashboard`,
@@ -434,9 +437,7 @@ const { data, error } = await supabase.auth.signUp({
                   onClick={() => setError("")}
                 >
                   <span className="sr-only">Dismiss</span>
-                  <svg className="h-4 w-4 fill-current" role="button" viewBox="0 0 20 20">
-                    <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
-                  </svg>
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             )}
@@ -599,16 +600,10 @@ const { data, error } = await supabase.auth.signUp({
                   <Github className="h-5 w-5" />
                 </Button>
                 <Button variant="ghost" size="icon" className="rounded-full text-gray-600 hover:text-black">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" />
-                  </svg>
+                  <X className="h-5 w-5" />
                 </Button>
                 <Button variant="ghost" size="icon" className="rounded-full text-gray-600 hover:text-black">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9.19 21.5c-4.35 0-7.84-3.5-7.84-7.84 0-4.35 3.5-7.84 7.84-7.84 4.35 0 7.84 3.5 7.84 7.84 0 4.35-3.5 7.84-7.84 7.84zm0-14.69c-3.77 0-6.85 3.08-6.85 6.85 0 3.77 3.08 6.85 6.85 6.85 3.77 0 6.85-3.08 6.85-6.85 0-3.77-3.08-6.85-6.85-6.85z" />
-                    <path d="M16.5 21.5c-.92 0-1.66-.74-1.66-1.66 0-.92.74-1.66 1.66-1.66.92 0 1.66.74 1.66 1.66 0 .92-.74 1.66-1.66 1.66zm0-2.33c-.37 0-.67.3-.67 0 .67 0 .37.3.67.67.67.37 0 .67-.3.67-.67 0-.37-.3-.67-.67-.67z" />
-                    <path d="M19.5 21.5c-.92 0-1.66-.74-1.66-1.66 0-.92.74-1.66 1.66-1.66.92 0 1.66.74 1.66 1.66 0 .92-.74 1.66-1.66 1.66zm0-2.33c-.37 0-.67.3-.67.67 0 .37.3.67.67.67.37 0 .67-.3.67-.67 0-.37-.3-.67-.67-.67z" />
-                  </svg>
+                  <Instagram className="h-5 w-5" />
                 </Button>
               </div>
             </div>
