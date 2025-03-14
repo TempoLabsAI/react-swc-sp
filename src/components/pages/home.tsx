@@ -97,7 +97,7 @@ export default function LandingPage() {
   const fetchPlans = async () => {
     try {
       // Use the Supabase client to call the Edge Function
-      const { data, error } = await supabase.functions.invoke('supabase-functions-get-plans');
+      const { data, error } = await supabase.functions.invoke('get-plans');
 
       if (error) {
         throw error;
@@ -132,7 +132,7 @@ export default function LandingPage() {
     setError("");
 
     try {
-      const { data, error } = await supabase.functions.invoke('supabase-functions-create-checkout', {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
           productPriceId: priceId,
           successUrl: `${window.location.origin}/dashboard`,

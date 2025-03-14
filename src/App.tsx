@@ -7,6 +7,7 @@ import Dashboard from "./components/pages/dashboard";
 import Success from "./components/pages/success";
 import Home from "./components/pages/home";
 import { AuthProvider, useAuth } from "../supabase/auth";
+import { Toaster } from "./components/ui/toaster";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -55,6 +56,7 @@ function App() {
       <Suspense fallback={<p>Loading...</p>}>
         <AppRoutes />
       </Suspense>
+      <Toaster />
     </AuthProvider>
   );
 }
